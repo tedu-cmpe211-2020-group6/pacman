@@ -18,6 +18,7 @@ private Coordinate Positions;
  private int CurrentSpeed= 3;
  private short [] screendata;
  
+ //test
 
  private int [] Ghostx;
  private int [] Ghosty;
