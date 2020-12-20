@@ -3,3 +3,11 @@
 /PacmanChrachtersMove.class
 /PacmanGraphıc.class
 /Driver.class
+/DrawingVisitor.class
+/EntityVisitor.class
+/Entity.class
+/GameWorld.class
+/MazePos.class
+/Ghost.class
+/Direction.class
+/Item.class

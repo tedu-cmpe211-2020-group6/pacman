@@ -3,7 +3,7 @@ package Pacman;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public class PacmanChrachtersMove extends PacmanGraphýc {
+public class PacmanChrachtersMove extends DrawingVisitor {
  /**
 	 * 
 	 */
