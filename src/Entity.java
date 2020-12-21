@@ -1,7 +1,7 @@
 
 public abstract class Entity {
 	private MazePos position;
-	private GameWorld world;
+	protected GameWorld world;
 	
 	public Entity(GameWorld world) {
 		this.world = world;
