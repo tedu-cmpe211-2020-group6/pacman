@@ -11,3 +11,10 @@
 /Ghost.class
 /Direction.class
 /Item.class
+/Driver$PacmanWindow.class
+/Blinky.class
+/Pinky.class
+/Inky.class
+/Clyde.class
+/Pacman.class
+/MazeTile.class
