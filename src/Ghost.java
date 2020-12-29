@@ -7,7 +7,7 @@ public abstract class Ghost extends Entity {
 	abstract void findPath();
 	
 	public void accept(EntityVisitor visitor) {
-		visitor.visitGhost();
+		visitor.visitGhost(this);
 	}
 	
 	public void tick() {

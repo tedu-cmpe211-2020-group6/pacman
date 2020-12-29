@@ -1,6 +1,6 @@
 
 public abstract class Entity {
-	private MazePos position;
+	private MazePos position = new MazePos(1, 1);
 	protected GameWorld world;
 	
 	public Entity(GameWorld world) {

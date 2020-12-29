@@ -1,6 +1,6 @@
 
 public interface EntityVisitor {
-	void visitPacman();
-	void visitGhost();
-	void visitMazeTile();
+	void visitPacman(Pacman p);
+	void visitGhost(Ghost g);
+	void visitMazeTile(MazeTile mt);
 }

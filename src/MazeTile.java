@@ -12,7 +12,7 @@ public class MazeTile extends Entity {
 
 	@Override
 	public void accept(EntityVisitor visitor) {
-		visitor.visitMazeTile();
+		visitor.visitMazeTile(this);
 	}
 
 	@Override

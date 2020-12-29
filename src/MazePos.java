@@ -8,6 +8,11 @@ public class MazePos {
 		this.setY(y);
 	}
 
+	public MazePos(MazePos pos) {
+		setX(pos.getX());
+		setY(pos.getY());
+	}
+
 	public int getX() {
 		return x;
 	}

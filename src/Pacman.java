@@ -7,7 +7,7 @@ public class Pacman extends Entity {
 
 	@Override
 	public void accept(EntityVisitor visitor) {
-		visitor.visitPacman();
+		visitor.visitPacman(this);
 	}
 
 	@Override
@@ -42,6 +42,6 @@ public class Pacman extends Entity {
 		setPosition(newPos);
 	}
 	
-	private Direction direction = Direction.left;
+	private Direction direction = Direction.down;
 
 }
