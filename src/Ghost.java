@@ -13,4 +13,8 @@ public abstract class Ghost extends Entity {
 	public void tick() {
 		// TODO
 	}
+	
+	public boolean isInBlueMode() {
+		return world.isInBlueGhostMode();
+	}
 }

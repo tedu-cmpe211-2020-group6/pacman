@@ -1,6 +1,6 @@
 
 public enum Item {
-	pellet, powerPellet, cherry, strawberry,orange, apple, melon, galaxian, bell, key;
+	pellet, powerPellet, cherry, strawberry, orange, apple, melon, galaxian, bell, key, none;
 	
 	public int pointValue() {
 		switch (this) {

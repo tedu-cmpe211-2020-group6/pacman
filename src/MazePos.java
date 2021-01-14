@@ -36,4 +36,19 @@ public class MazePos {
 	public MazePos withY(int y) {
 		return new MazePos(x, y);
 	}
+
+	public MazePos move(Direction direction, int n) {
+		switch (direction) {
+		case down:
+			return this.withY(y + n);
+		case left:
+			return this.withX(x - n);
+		case right:
+			return this.withX(x + n);
+		case up:
+			return this.withY(y - n);
+		default:
+			return this;
+		}
+	}
 }

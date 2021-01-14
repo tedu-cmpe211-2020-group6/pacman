@@ -5,7 +5,7 @@ public class MazeTile extends Entity {
 		super(world);
 		walls[Direction.up.ordinal()] = topWall;
 		walls[Direction.right.ordinal()] = rightWall;
-		walls[Direction.down.ordinal()] = leftWall;
+		walls[Direction.down.ordinal()] = bottomWall;
 		walls[Direction.left.ordinal()] = leftWall;
 		this.item = item;
 	}
@@ -17,8 +17,7 @@ public class MazeTile extends Entity {
 
 	@Override
 	public void tick() {
-		// TODO Auto-generated method stub
-
+		return;
 	}
 	
 	public boolean hasWall(Direction dir) {
@@ -30,8 +29,9 @@ public class MazeTile extends Entity {
 	}
 	
 	public void eatItem() {
+		if (item == Item.none) return;
 		Item temp = item;
-		item = null;
+		item = Item.none;
 		world.didEatItem(temp);
 	}
 	
