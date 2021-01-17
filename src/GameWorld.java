@@ -1,5 +1,6 @@
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.function.Predicate;
 
 public class GameWorld {
 	public static final long NANOSECONDS_PER_TICK = 1000000000 / 100; // 1/100 sec
@@ -11,6 +12,9 @@ public class GameWorld {
 	private int lives = 3;
 	private boolean didWin;
 	private int blueGhostModeTimer = 0;
+	private int cooldownTimer = 0;
+	private boolean resetNextTick = false;
+	private boolean gameOver = false;
 	
 	/* 
 	 * < Left wall
@@ -20,12 +24,12 @@ public class GameWorld {
 	 * . Pellet
 	 * o Power pellet
 	 * a Apple
-	 * c Cherry
+	 * s Strawberry
 	 */
 	private MazeTile[][] maze;
 	
 	private Pacman pacman;
-	private WinnerCelebration winnerCelebration;
+	private FlashingMessage winnerCelebration;
 	
 	private ArrayList<Entity> entities;
 	private ArrayList<Ghost> ghosts;
@@ -34,26 +38,53 @@ public class GameWorld {
 		reset();
 	}
 	
-	public void tick() {
+	public void tick() {		
+		ticks++;
+		
+		if (gameOver) return;
+		if (cooldownTimer > 0) {
+			cooldownTimer--;
+			return;
+		}
+		
+		if (resetNextTick) {
+			reset();
+			resetNextTick = false;
+		}
+		
 		if (numPellets == 0 && !didWin) {
 			win();
 		}
 		
-		if (blueGhostMode && ++blueGhostModeTimer >= 20) {
+		if (blueGhostMode && ++blueGhostModeTimer >= 400) {
 			blueGhostMode = false;
 		}
 		
 		if (pacman.isDead()) {
 			lives--;
 			if (lives == 0) endGame();
-			else reset();
+			else {
+				cooldownTimer = 300;
+				resetNextTick = true;
+				return;
+			}
 		}
 		
 		for (Entity e : entities) e.tick();
-		ticks++;
+		
+		Predicate<Entity> entityDead = new Predicate<Entity>() { @Override public boolean test(Entity e) {
+			return e.isDead();
+		} };
+		entities.removeIf(entityDead);
+		ghosts.removeIf(entityDead);
 	}
 	
 	private void reset() {
+		System.out.println("=============== RESETTING ===============");
+		if (pacman != null) System.out.println(pacman.touchingGhost().getClass());
+		
+		numPellets = 0;
+
 		maze = new MazeTile[][] {
 				r("<o^    .^    .^   ^.    <.>^   .^    .^    .^    o^>"),
 				r("<.    <^    ^>     .    <.>    .    <^    ^>     .>"),
@@ -61,10 +92,11 @@ public class GameWorld {
 				r("<.     .     .     .     .     .     .     .     .>"),
 				r("<.>   <_^   ^_>    .    <^_>   .    <_^   ^_>    .>"),
 				r("<.     .     .     .     .     .     .     .     .>"),
-				r("<.     .     .    <.^    .    ^.>    .     .     .>"),
-				r("<.     .     .    <._   _.    _.>    .     .     .>"),
-				r("<.     .     .     .     .     .     .     .     .>"),
-				r("<._    ._    ._    ._    ._    ._    ._    ._    ._>"),
+				r("<.     .^    .^   <^     a     ^>    ^.   ^.     .>"),
+				r("<.     .^   <s    <_    _      _>    s>   ^.     .>"),
+				r("<.>    .    <._    ._    ._    ._   _.>    .    <.>"),
+				r("<.>    ._    ._    ._    a_    ._    ._    ._   <.>"),
+				r("<._    ._    ._    ._    ._    ._    ._    ._   _.>"),
 		};
 		
 		for (int y = 0; y < maze.length; y++) for (int x = 0; x < maze[0].length; x++) {
@@ -81,17 +113,18 @@ public class GameWorld {
 		ghosts.add(new Inky(this));
 		ghosts.add(new Clyde(this));
 		entities.addAll(ghosts);
+		
+		score = 0;
 	}
 
 	private void endGame() {
-		// TODO Auto-generated method stub
-		
+		gameOver = true;
+		entities.add(new FlashingMessage(this, "!!! GAME OVER !!!"));
 	}
 
 	private void win() {
 		didWin = true;
-		winnerCelebration = new WinnerCelebration(this);
-		entities.add(winnerCelebration);
+		entities.add(new FlashingMessage(this, "!!! YOU WIN !!!"));
 	}
 
 	public void didEatItem(Item item) {
@@ -108,7 +141,11 @@ public class GameWorld {
 	}
 
 	public MazeTile mazeTileAt(MazePos pos) {
-		return maze[pos.getY() - 1][pos.getX() - 1];
+		try {
+			return maze[pos.getY() - 1][pos.getX() - 1];
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return parseTile("<^_>");
+		}
 	}
 	
 	public int mazeHeight() {
@@ -149,7 +186,7 @@ public class GameWorld {
 		case '.': item = Item.pellet; numPellets++; break;
 		case 'o': item = Item.powerPellet; numPellets++; break;
 		case 'a': item = Item.apple; numPellets++; break;
-		case 'c': item = Item.cherry; numPellets++; break;
+		case 's': item = Item.strawberry; numPellets++; break;
 		}
 		
 		return new MazeTile(this, top, right, bottom, left, item);

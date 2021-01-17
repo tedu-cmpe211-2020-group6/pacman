@@ -2,7 +2,7 @@
 public enum Direction {
 	right, up, left, down;
 
-	Direction inverse() {
+	public Direction inverse() {
 		switch (this) {
 		case down: return up;
 		case left: return right;
@@ -10,5 +10,10 @@ public enum Direction {
 		case up: return down;
 		default: return null;
 		}
+	}
+	
+	public static Direction random() {
+		int rand = (int) Math.floor(Math.random() * values().length);
+		return values()[rand];
 	}
 }

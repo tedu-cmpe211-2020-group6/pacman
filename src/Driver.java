@@ -1,10 +1,9 @@
-import java.awt.Color;
+
 import java.awt.Graphics;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.Timer;
+import java.io.File;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -16,6 +15,8 @@ public class Driver {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		PacmanWindow win = new PacmanWindow();
+		
+		System.out.println(new File("./assets/inky.jpg").exists());
 
 		while (true) {
 			long dt = System.nanoTime() - time;
@@ -24,13 +25,6 @@ public class Driver {
 				world.tick();
 				win.repaint();
 			}
-		}
-
-	}
-
-	class TAdapter extends KeyAdapter {
-		public void keypressed(KeyEvent e) {
-			
 		}
 	}
 
@@ -73,7 +67,6 @@ public class Driver {
 			for (int y = 1; y <= world.mazeHeight(); y++) for (int x = 1; x <= world.mazeWidth(); x++) {
 				world.mazeTileAt(new MazePos(x, y)).accept(drawing);
 			}
-			world.toString();
 		}
 	}
 

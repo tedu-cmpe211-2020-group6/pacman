@@ -1,5 +1,7 @@
 
 public abstract class Ghost extends Entity {
+	private static final int SPEED = 20;
+	
 	public Ghost(GameWorld gw) {
 		super(gw);
 	}
@@ -11,10 +13,20 @@ public abstract class Ghost extends Entity {
 	}
 	
 	public void tick() {
-		// TODO
+		if (world.ticks() % SPEED == 0) {
+			do {
+				changeDirection(Direction.random());
+			} while (cannotMove());
+			move();
+		}
 	}
 	
 	public boolean isInBlueMode() {
 		return world.isInBlueGhostMode();
+	}
+	
+	public void kill() {
+		if (!isInBlueMode()) return;
+		super.kill();
 	}
 }

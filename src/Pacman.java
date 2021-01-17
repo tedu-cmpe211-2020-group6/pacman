@@ -18,40 +18,22 @@ public class Pacman extends Entity {
 			move();
 			eat();
 		}
+		Ghost gh = touchingGhost();
+		if (world.isInBlueGhostMode() && gh != null) gh.kill();
 	}
 	
-	public void changeDirection(Direction dir) {
-		direction = dir;
-	}
-	
-	private void move() {
-		MazePos pos = getPosition();
-		if (world.mazeTileAt(pos).hasWall(direction) || world.mazeTileAt(pos.move(direction, 1)).hasWall(direction.inverse())) {
-			return;
+	public Ghost touchingGhost() {
+		for (Ghost g: world.ghosts()) {
+			if (g.getPosition().equals(getPosition())) {
+				return g;
+			}
 		}
-		MazePos newPos = pos;
-		switch (direction) {
-		case up:
-			newPos = pos.withY(pos.getY() - 1);
-			break;
-		case right:
-			newPos = pos.withX(pos.getX() + 1);
-			break;
-		case down:
-			newPos = pos.withY(pos.getY() + 1);
-			break;
-		case left:
-			newPos = pos.withX(pos.getX() - 1);
-			break;
-		}
-		setPosition(newPos);
+		return null;
 	}
 	
 	private void eat() {
 		world.mazeTileAt(getPosition()).eatItem();
 	}
-	
-	private Direction direction = Direction.down;
 
 	public void handleInput(KeyEvent e) {
 		switch (e.getKeyCode()) {
@@ -70,19 +52,8 @@ public class Pacman extends Entity {
 		}
 	}
 
-	public Direction getDirection() {
-		return direction;
-	}
-
 	public boolean isDead() {
-		if (world.isInBlueGhostMode()) return false;
-		
-		for (Ghost g: world.ghosts()) {
-			if (g.getPosition().equals(getPosition())) {
-				return true;
-			}
-		}
-		return false;
+		return !world.isInBlueGhostMode() && touchingGhost() != null && !touchingGhost().isDead();
 	}
 
 }

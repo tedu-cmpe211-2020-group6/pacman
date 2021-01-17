@@ -3,7 +3,7 @@ public class Pinky extends Ghost {
 
 	public Pinky(GameWorld gw) {
 		super(gw);
-		setPosition(new MazePos(4, 8));
+		setPosition(new MazePos(6, 8));
 	}
 
 	@Override

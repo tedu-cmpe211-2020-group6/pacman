@@ -14,7 +14,12 @@ public class DrawingVisitor implements EntityVisitor {
 	private int w, h;
 
 	public DrawingVisitor(Graphics g, GameWorld world, int w, int h) {
-		if (!imagesLoaded) try{loadImages();} catch(Exception e) {}
+		if (!imagesLoaded) try {
+			loadImages();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new RuntimeException("Could not load images: "+e.getMessage());
+		}
 		
 		this.g = g;
 		this.world = world;
@@ -25,13 +30,12 @@ public class DrawingVisitor implements EntityVisitor {
 		g.fillRect(0, 0, w, h);
 
 		white();
-		if (world.isInBlueGhostMode()) {
-			g.drawString("BLUE GHOST MODE", 100, 20);
+
+		for (int i = 1; i <= world.lives(); i++) {
+			g.drawImage(heart, 10 + 30 * i, 10, null);
 		}
 
-		g.drawString("pellet count:" + world.debugNumPellets() + ", hearts: " + world.lives(), 20, 20);
-
-		System.out.println("SCORE: " + world.getScore());
+		if (world.ticks() % 10 == 0) System.out.println("SCORE: " + world.getScore() + "\tPELLETS: " + world.debugNumPellets());
 	}
 
 	@Override
@@ -45,7 +49,7 @@ public class DrawingVisitor implements EntityVisitor {
 
 		white();
 		normalFont();
-		g.drawString("pacman", pos.getX() * BLOCKSIZE, pos.getY() * BLOCKSIZE);
+		g.drawString(p.getDirection().toString(), pos.getX() * BLOCKSIZE, pos.getY() * BLOCKSIZE);
 	}
 
 	@Override
@@ -54,6 +58,13 @@ public class DrawingVisitor implements EntityVisitor {
 		int x = pos.getX() * BLOCKSIZE, y = pos.getY() * BLOCKSIZE;
 		
 		g.drawString(gh.getClass().getName(), x, y + 30);
+		BufferedImage img = null;
+		if (gh instanceof Blinky) img = blinky;
+		if (gh instanceof Pinky) img = pinky;
+		if (gh instanceof Inky) img = inky;
+		if (gh instanceof Clyde) img = clyde;
+		if (world.isInBlueGhostMode()) img = blueGhost;
+		g.drawImage(img, x+5, y+5, null);
 	}
 
 	@Override
@@ -75,20 +86,27 @@ public class DrawingVisitor implements EntityVisitor {
 		switch (mt.item()) {
 		case pellet:
 			white();
-			g.drawString("pellet", x, y + 20);
+			g.fillArc(x+18, y+18, 4, 4, 0, 360);
 			break;
 		case powerPellet:
 			yellow();
-			g.drawString("power\npellet", x, y + 20);
+			g.fillArc(x+15, y+15, 10, 10, 0, 360);
+			break;
+		case apple:
+			g.drawImage(apple, x+5, y+5, null);
+			break;
+		case strawberry:
+			g.drawImage(strawberry, x+5, y+5, null);
+			break;
 		default:
 		}
 	}
 
 	@Override
-	public void visitWinnerCelebration(WinnerCelebration wc) {
+	public void visitFlashingMessage(FlashingMessage fm) {
 		if ((world.ticks() / 10) % 4 < 2) {
 			bigFont();
-			g.drawString("YOU WIN", w / 2, h / 2);
+			g.drawString(fm.getMessage(), w / 2 - 200, h / 2);
 		}
 	}
 
@@ -112,32 +130,26 @@ public class DrawingVisitor implements EntityVisitor {
 		g.setColor(Color.black);
 	}
 	
-	private boolean imagesLoaded = false;
-	private BufferedImage pacman, heart, strawberry, apple, grape, cherry, redapple, blinky, inky, pinky, clyde;
+	private static boolean imagesLoaded = false;
+	private static BufferedImage heart, strawberry, apple, blinky, inky, pinky, clyde, blueGhost;
 
 	private void loadImages() throws IOException {
 		imagesLoaded = true;
-		File folderInput = new File("C:\\Users\\Begüm\\Desktop\\pacman.png");
-		pacman = ImageIO.read(folderInput);
-		File folderInput1 = new File("C:\\Users\\Begüm\\Desktop\\heart.png");
+		File folderInput1 = new File("./assets/heart.png");
 		heart = ImageIO.read(folderInput1);
-		File folderInput2 = new File("C:\\Users\\Begüm\\Desktop\\stawberry.png");
+		File folderInput2 = new File("./assets/strawberry.png");
 		strawberry = ImageIO.read(folderInput2);
-		File folderInput3 = new File("C:\\Users\\Begüm\\Desktop\\apple.png");
+		File folderInput3 = new File("./assets/redapple.png");
 		apple = ImageIO.read(folderInput3);
-		File folderInput4 = new File("C:\\Users\\Begüm\\Desktop\\grape.png");
-		grape = ImageIO.read(folderInput4);
-		File folderInput5 = new File("C:\\Users\\Begüm\\Desktop\\cherry.png");
-		cherry = ImageIO.read(folderInput5);
-		File folderInput6 = new File("C:\\Users\\Begüm\\Desktop\\redapple.png");
-		redapple = ImageIO.read(folderInput6);
-		File folderInput7 = new File("C:\\Users\\Begüm\\Desktop\\blinky.png");
+		File folderInput7 = new File("./assets/blinky.png");
 		blinky = ImageIO.read(folderInput7);
-		File folderInput8 = new File("C:\\Users\\Begüm\\Desktop\\inky.png");
+		File folderInput8 = new File("./assets/inky.png");
 		inky = ImageIO.read(folderInput8);
-		File folderInput9 = new File("C:\\Users\\Begüm\\Desktop\\pinky.png");
+		File folderInput9 = new File("./assets/pinky.png");
 		pinky = ImageIO.read(folderInput9);
-		File folderInput10 = new File("C:\\Users\\Begüm\\Desktop\\clyde.png");
+		File folderInput10 = new File("./assets/clyde.png");
 		clyde = ImageIO.read(folderInput10);
+		File folderInput11 = new File("./assets/blue-ghost.png");
+		blueGhost = ImageIO.read(folderInput11);
 	}
 }
