@@ -29,7 +29,6 @@ public class GameWorld {
 	private MazeTile[][] maze;
 	
 	private Pacman pacman;
-	private FlashingMessage winnerCelebration;
 	
 	private ArrayList<Entity> entities;
 	private ArrayList<Ghost> ghosts;
@@ -84,6 +83,7 @@ public class GameWorld {
 		if (pacman != null) System.out.println(pacman.touchingGhost().getClass());
 		
 		numPellets = 0;
+		score = 0;
 
 		maze = new MazeTile[][] {
 				r("<o^    .^    .^   ^.    <.>^   .^    .^    .^    o^>"),
@@ -119,12 +119,12 @@ public class GameWorld {
 
 	private void endGame() {
 		gameOver = true;
-		entities.add(new FlashingMessage(this, "!!! GAME OVER !!!"));
+		entities.add(new FlashingMessage(this, "!!! GAME OVER ("+score+") !!!"));
 	}
 
 	private void win() {
 		didWin = true;
-		entities.add(new FlashingMessage(this, "!!! YOU WIN !!!"));
+		entities.add(new FlashingMessage(this, "!!! YOU WIN ("+score+") !!!"));
 	}
 
 	public void didEatItem(Item item) {
@@ -214,5 +214,14 @@ public class GameWorld {
 
 	public int lives() {
 		return lives;
+	}
+
+	public void didKillGhost(Ghost ghost) {
+		switch (ghosts.size()) {
+		case 4: score += 200;  break;
+		case 3: score += 400;  break;
+		case 2: score += 800;  break;
+		case 1: score += 1600; break;
+		}
 	}
 }

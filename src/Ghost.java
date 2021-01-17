@@ -27,6 +27,7 @@ public abstract class Ghost extends Entity {
 	
 	public void kill() {
 		if (!isInBlueMode()) return;
+		world.didKillGhost(this);
 		super.kill();
 	}
 }

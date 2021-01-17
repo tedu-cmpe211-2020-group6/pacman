@@ -1,6 +1,8 @@
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +13,7 @@ public class DrawingVisitor implements EntityVisitor {
 	private Graphics g;
 	private static int BLOCKSIZE = 40;
 	private GameWorld world;
-	private int w, h;
+	private int w, h, mazeXOffset, mazeYOffset;
 
 	public DrawingVisitor(Graphics g, GameWorld world, int w, int h) {
 		if (!imagesLoaded) try {
@@ -25,6 +27,9 @@ public class DrawingVisitor implements EntityVisitor {
 		this.world = world;
 		this.w = w;
 		this.h = h;
+		
+		mazeXOffset = (w - BLOCKSIZE * (world.mazeWidth() + 2)) / 2;
+		mazeYOffset = (h - BLOCKSIZE * (world.mazeHeight() + 2)) / 2;
 
 		black();
 		g.fillRect(0, 0, w, h);
@@ -42,20 +47,22 @@ public class DrawingVisitor implements EntityVisitor {
 	public void visitPacman(Pacman p) {
 		// TODO Draw Pac-Man
 		MazePos pos = p.getPosition();
+		int x = pos.getX() * BLOCKSIZE + mazeXOffset, y = pos.getY() * BLOCKSIZE + mazeYOffset;
 		int startAngle = 45 + 90 * p.getDirection().ordinal();
+		
 		yellow();
-		g.fillArc(pos.getX() * BLOCKSIZE + BLOCKSIZE / 4, pos.getY() * BLOCKSIZE + BLOCKSIZE / 4, BLOCKSIZE / 2,
+		g.fillArc(x + BLOCKSIZE / 4, y + BLOCKSIZE / 4, BLOCKSIZE / 2,
 				BLOCKSIZE / 2, startAngle, (world.ticks() / 10) % 4 < 2 ? 270 : 360);
 
 		white();
 		normalFont();
-		g.drawString(p.getDirection().toString(), pos.getX() * BLOCKSIZE, pos.getY() * BLOCKSIZE);
+		g.drawString(p.getDirection().toString(), x, y);
 	}
 
 	@Override
 	public void visitGhost(Ghost gh) {
 		MazePos pos = gh.getPosition();
-		int x = pos.getX() * BLOCKSIZE, y = pos.getY() * BLOCKSIZE;
+		int x = pos.getX() * BLOCKSIZE + mazeXOffset, y = pos.getY() * BLOCKSIZE + mazeYOffset;
 		
 		g.drawString(gh.getClass().getName(), x, y + 30);
 		BufferedImage img = null;
@@ -70,7 +77,7 @@ public class DrawingVisitor implements EntityVisitor {
 	@Override
 	public void visitMazeTile(MazeTile mt) {
 		MazePos pos = mt.getPosition();
-		int x = pos.getX() * BLOCKSIZE, y = pos.getY() * BLOCKSIZE;
+		int x = pos.getX() * BLOCKSIZE + mazeXOffset, y = pos.getY() * BLOCKSIZE + mazeYOffset;
 
 		g.setColor(Color.blue);
 		if (mt.hasWall(Direction.up))
@@ -104,9 +111,11 @@ public class DrawingVisitor implements EntityVisitor {
 
 	@Override
 	public void visitFlashingMessage(FlashingMessage fm) {
+		String msg = fm.getMessage();
 		if ((world.ticks() / 10) % 4 < 2) {
 			bigFont();
-			g.drawString(fm.getMessage(), w / 2 - 200, h / 2);
+			FontMetrics metrics = ((Graphics2D) g).getFontMetrics();
+			g.drawString(msg, (w - metrics.stringWidth(msg)) / 2, h / 2);
 		}
 	}
 
