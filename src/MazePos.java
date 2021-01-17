@@ -51,4 +51,11 @@ public class MazePos {
 			return this;
 		}
 	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof MazePos) {
+			return this.x == ((MazePos) other).x && this.y == ((MazePos) other).y;
+		} else return false;
+	}
 }

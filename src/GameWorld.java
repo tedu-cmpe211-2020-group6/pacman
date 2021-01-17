@@ -8,6 +8,7 @@ public class GameWorld {
 	private int ticks;
 	private int numPellets;
 	private boolean blueGhostMode;
+	private int lives = 3;
 	private boolean didWin;
 	private int blueGhostModeTimer = 0;
 	
@@ -21,53 +22,76 @@ public class GameWorld {
 	 * a Apple
 	 * c Cherry
 	 */
-	private MazeTile[][] maze = {
-			r("<o^    .^    .^   ^.    <.>^   .^    .^    .^    o^>"),
-			r("<.    <^    ^>     .    <.>    .    <^    ^>     .>"),
-			r("<.    <_    _>     .    <.>    .    <_    _>     .>"),
-			r("<.     .     .     .     .     .     .     .     .>"),
-			r("<.>   <_^   ^_>    .    <^_>   .    <_^   ^_>    .>"),
-			r("<.     .     .     .     .     .     .     .     .>"),
-			r("<.     .     .    <.^    .    ^.>    .     .     .>"),
-			r("<.     .     .    <._   _.    _.>    .     .     .>"),
-			r("<.     .     .     .     .     .     .     .     .>"),
-			r("<._    ._    ._    ._    ._    ._    ._    ._    ._>"),
-	};
+	private MazeTile[][] maze;
 	
-	private Pacman pacman = new Pacman(this);
-	private WinnerCelebration winnerCelebration = null;
+	private Pacman pacman;
+	private WinnerCelebration winnerCelebration;
 	
-	private ArrayList<Entity> entities = new ArrayList<>();
+	private ArrayList<Entity> entities;
+	private ArrayList<Ghost> ghosts;
 
 	public GameWorld() {
-		entities.add(pacman);
-		entities.add(new Blinky(this));
-		entities.add(new Pinky(this));
-		entities.add(new Inky(this));
-		entities.add(new Clyde(this));
-		
-		for (int y = 0; y < maze.length; y++) for (int x = 0; x < maze[0].length; x++) {
-			maze[y][x].setPosition(new MazePos(x + 1, y + 1));
-		}
+		reset();
 	}
 	
 	public void tick() {
 		if (numPellets == 0 && !didWin) {
-			didWin = true;
-			winnerCelebration = new WinnerCelebration(this);
-			entities.add(winnerCelebration);
+			win();
 		}
 		
 		if (blueGhostMode && ++blueGhostModeTimer >= 20) {
 			blueGhostMode = false;
 		}
 		
+		if (pacman.isDead()) {
+			lives--;
+			if (lives == 0) endGame();
+			else reset();
+		}
+		
 		for (Entity e : entities) e.tick();
 		ticks++;
 	}
 	
-	private void win() {
+	private void reset() {
+		maze = new MazeTile[][] {
+				r("<o^    .^    .^   ^.    <.>^   .^    .^    .^    o^>"),
+				r("<.    <^    ^>     .    <.>    .    <^    ^>     .>"),
+				r("<.    <_    _>     .    <.>    .    <_    _>     .>"),
+				r("<.     .     .     .     .     .     .     .     .>"),
+				r("<.>   <_^   ^_>    .    <^_>   .    <_^   ^_>    .>"),
+				r("<.     .     .     .     .     .     .     .     .>"),
+				r("<.     .     .    <.^    .    ^.>    .     .     .>"),
+				r("<.     .     .    <._   _.    _.>    .     .     .>"),
+				r("<.     .     .     .     .     .     .     .     .>"),
+				r("<._    ._    ._    ._    ._    ._    ._    ._    ._>"),
+		};
+		
+		for (int y = 0; y < maze.length; y++) for (int x = 0; x < maze[0].length; x++) {
+			maze[y][x].setPosition(new MazePos(x + 1, y + 1));
+		}
+		
+		entities = new ArrayList<>();
+		ghosts = new ArrayList<>();
+		pacman = new Pacman(this);
+		
+		entities.add(pacman);
+		ghosts.add(new Blinky(this));
+		ghosts.add(new Pinky(this));
+		ghosts.add(new Inky(this));
+		ghosts.add(new Clyde(this));
+		entities.addAll(ghosts);
+	}
 
+	private void endGame() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void win() {
+		didWin = true;
+		winnerCelebration = new WinnerCelebration(this);
+		entities.add(winnerCelebration);
 	}
 
 	public void didEatItem(Item item) {
@@ -145,5 +169,13 @@ public class GameWorld {
 
 	public int debugNumPellets() {
 		return numPellets;
+	}
+
+	public ArrayList<Ghost> ghosts() {
+		return ghosts;
+	}
+
+	public int lives() {
+		return lives;
 	}
 }

@@ -14,7 +14,7 @@ public class Pacman extends Entity {
 
 	@Override
 	public void tick() {
-		if (world.ticks() % (GameWorld.NANOSECONDS_PER_TICK / SPEED) == 0) {
+		if (world.ticks() % SPEED == 0) {
 			move();
 			eat();
 		}
@@ -72,6 +72,17 @@ public class Pacman extends Entity {
 
 	public Direction getDirection() {
 		return direction;
+	}
+
+	public boolean isDead() {
+		if (world.isInBlueGhostMode()) return false;
+		
+		for (Ghost g: world.ghosts()) {
+			if (g.getPosition().equals(getPosition())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
