@@ -62,15 +62,29 @@ public class GameWorld {
 		}
 		
 		respawnBlinkyTimer--;
-		if (respawnBlinkyTimer == 0) ghosts.add(new Blinky(this));
+		if (respawnBlinkyTimer == 0) {
+			Blinky b = new Blinky(this);
+			ghosts.add(b);
+			entities.add(b);
+		}
 		respawnPinkyTimer--;
-		if (respawnPinkyTimer == 0) ghosts.add(new Pinky(this));
+		if (respawnPinkyTimer == 0) {
+			Pinky p = new Pinky(this);
+			ghosts.add(p);
+			entities.add(p);
+		}
 		respawnInkyTimer--;
-		if (respawnInkyTimer == 0) ghosts.add(new Inky(this));
+		if (respawnInkyTimer == 0) {
+			Inky in = new Inky(this);
+			ghosts.add(in);
+			entities.add(in);
+		}
 		respawnClydeTimer--;
-		if (respawnClydeTimer == 0) ghosts.add(new Clyde(this));
-		
-		System.out.println("respawn clyde:"+respawnClydeTimer);
+		if (respawnClydeTimer == 0) {
+			Clyde c = new Clyde(this);
+			ghosts.add(c);
+			entities.add(c);
+		}
 		
 		if (pacman.isDead()) {
 			lives--;
@@ -103,7 +117,7 @@ public class GameWorld {
 		score = 0;
 
 		maze = new MazeTile[][] {
-				r("<o^    .^    .^   ^.    <.>^   .^    .^    .^    o^>"),
+				r("<o^    .^    .^   ^.     .^    .^    .^    .^    o^>"),
 				r("<.    <^    ^>     .    <.>    .    <^    ^>     .>"),
 				r("<.    <_    _>     .    <.>    .    <_    _>     .>"),
 				r("<.     .     .     .     .     .     .     .     .>"),

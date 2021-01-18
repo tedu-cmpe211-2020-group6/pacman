@@ -19,7 +19,6 @@ public class DrawingVisitor implements EntityVisitor {
 		if (!imagesLoaded) try {
 			loadImages();
 		} catch (IOException e) {
-			e.printStackTrace();
 			throw new RuntimeException("Could not load images: "+e.getMessage());
 		}
 		
@@ -37,24 +36,19 @@ public class DrawingVisitor implements EntityVisitor {
 		white();
 
 		for (int i = 1; i <= world.lives(); i++) {
-			g.drawImage(heart, 10 + 30 * i, 10, null);
+			g.drawImage(heart, mazeXOffset + 10 + 30 * i, 10, null);
 		}
 	}
 
 	@Override
 	public void visitPacman(Pacman p) {
-		// TODO Draw Pac-Man
 		MazePos pos = p.getPosition();
 		int x = pos.getX() * BLOCKSIZE + mazeXOffset, y = pos.getY() * BLOCKSIZE + mazeYOffset;
 		int startAngle = 45 + 90 * p.getDirection().ordinal();
 		
 		yellow();
 		g.fillArc(x + BLOCKSIZE / 4, y + BLOCKSIZE / 4, BLOCKSIZE / 2,
-				BLOCKSIZE / 2, startAngle, (world.ticks() / 10) % 4 < 2 ? 270 : 360);
-
-		white();
-		normalFont();
-		g.drawString(p.getDirection().toString(), x, y);
+				BLOCKSIZE / 2, startAngle, world.ticks() % 40 < 20 ? 270 : 360);
 	}
 
 	@Override
@@ -62,7 +56,6 @@ public class DrawingVisitor implements EntityVisitor {
 		MazePos pos = gh.getPosition();
 		int x = pos.getX() * BLOCKSIZE + mazeXOffset, y = pos.getY() * BLOCKSIZE + mazeYOffset;
 		
-		g.drawString(gh.getClass().getName(), x, y + 30);
 		BufferedImage img = null;
 		if (gh instanceof Blinky) img = blinky;
 		if (gh instanceof Pinky) img = pinky;
@@ -110,10 +103,10 @@ public class DrawingVisitor implements EntityVisitor {
 	@Override
 	public void visitFlashingMessage(FlashingMessage fm) {
 		String msg = fm.getMessage();
-		if ((world.ticks() / 10) % 4 < 2) {
+		if (world.ticks() % 40 < 20) {
 			bigFont();
 			FontMetrics metrics = ((Graphics2D) g).getFontMetrics();
-			g.drawString(msg, (w - metrics.stringWidth(msg)) / 2, h / 2);
+			g.drawString(msg, (w - metrics.stringWidth(msg)) / 2, (int)(h - metrics.getStringBounds(msg, g).getHeight()) / 2);
 		}
 	}
 

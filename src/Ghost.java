@@ -6,7 +6,7 @@ public abstract class Ghost extends Entity {
 		super(gw);
 	}
 	
-	abstract MazePos findPath();
+	abstract Direction findPath();
 	
 	public void accept(EntityVisitor visitor) {
 		visitor.visitGhost(this);
@@ -20,13 +20,10 @@ public abstract class Ghost extends Entity {
 //			move();
 //		}
 		if (world.ticks() % SPEED == 0) {
-			MazePos pathfindPos = findPath();
+			Direction pathfind = findPath();
 			
-			MazeTile mt = world.getPathfindingMaze()[pathfindPos.getY()][pathfindPos.getX()].associatedMazeTile();
-			
-			if (mt != null) {
-				setPosition(mt.getPosition());
-			}
+			changeDirection(pathfind);
+			move();
 		}
 	}
 	
@@ -43,7 +40,7 @@ public abstract class Ghost extends Entity {
 	// used for pathfinding
 	protected boolean canMove(MazePos pos, Direction dir) {
 		PathfindingTile[][] pfm = world.getPathfindingMaze();
-		if (pos.getY() <= 0 || pos.getX() <= 0 || pos.getY() >= pfm.length-1 || pos.getX() >= pfm[0].length-1) return false;
+		if (pos.getY() <= 0 || pos.getX() <= 0 || pos.getY() >= pfm.length-2 || pos.getX() >= pfm[0].length-2) return false;
 		pos = pos.move(dir, 1);
 		return !pfm[pos.getY()][pos.getX()].hasWall();
 	}

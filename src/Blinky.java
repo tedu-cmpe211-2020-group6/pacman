@@ -12,7 +12,7 @@ public class Blinky extends Ghost {
 	}
 
 	@Override
-	MazePos findPath() {
+	Direction findPath() {
 		GFG gz = new GFG();
 		MazePos[] postions = new MazePos[4];
 		int minindex = 0;
@@ -48,49 +48,67 @@ public class Blinky extends Ghost {
 		postions[2] = canMove(pos, Direction.down) ? pos.move(Direction.down, 2) : pos; // new MazePos(pos.getX(), pos.getY() + 1);
 		postions[3] = canMove(pos, Direction.up) ? pos.move(Direction.up, 2) : pos; // new MazePos(pos.getX(), pos.getY() - 1);
 
-		mindistance = gz.BFS(world.getPathfindingMaze(), postions[0], pacmanpos);
-		if (mindistance != -1 && minimum > mindistance) {
-			minimum = mindistance;
-			minindex = 0;
-		}
-		mindistance = gz.BFS(world.getPathfindingMaze(), postions[1], pacmanpos);
-		if (mindistance != -1 && minimum > mindistance) {
-			minimum = mindistance;
-			minindex = 1;
-		}
-		mindistance = gz.BFS(world.getPathfindingMaze(), postions[2], pacmanpos);
-		if (mindistance != -1 && minimum > mindistance) {
-			minimum = mindistance;
-			minindex = 2;
-		}
+		Direction rv = Direction.values()[rand];
+		
+		try {
+			mindistance = gz.BFS(world.getPathfindingMaze(), postions[0], pacmanpos);
 
-		mindistance = gz.BFS(world.getPathfindingMaze(), postions[3], pacmanpos);
-		if (mindistance != -1 && minimum > mindistance) {
-			minimum = mindistance;
-			minindex = 3;
+			if (mindistance != -1 && minimum > mindistance) {
+				minimum = mindistance;
+				minindex = 0;
+				rv = Direction.right;
+			}
+		} catch (Exception e) {
+		}
+		try {
+			mindistance = gz.BFS(world.getPathfindingMaze(), postions[1], pacmanpos);
+			if (mindistance != -1 && minimum > mindistance) {
+				minimum = mindistance;
+				minindex = 1;
+				rv = Direction.left;
+			}
+		} catch (Exception e) {
+		}
+		try {
+			mindistance = gz.BFS(world.getPathfindingMaze(), postions[2], pacmanpos);
+			if (mindistance != -1 && minimum > mindistance) {
+				minimum = mindistance;
+				minindex = 2;
+				rv = Direction.down;
+			}
+		} catch (Exception e) {
+		}
+		try {
+			mindistance = gz.BFS(world.getPathfindingMaze(), postions[3], pacmanpos);
+			if (mindistance != -1 && minimum > mindistance) {
+				minimum = mindistance;
+				minindex = 3;
+				rv = Direction.up;
+			}
+		} catch (Exception e) {
 		}
 
 		// this.setPosition(new MazePos(postions[minindex]));
 
-		MazePos finalposition = new MazePos(postions[minindex]);
+//		MazePos finalposition = new MazePos(postions[minindex]);
+//
+//		if (finalposition.getX() < 1) {
+//			finalposition.setX(1);
+//		}
+//
+//		if (finalposition.getY() < 1) {
+//			finalposition.setY(1);
+//		}
+//
+//		if (finalposition.getX() > world.getPathfindingMaze()[0].length - 2) {
+//			finalposition.setX(world.getPathfindingMaze()[0].length - 2);
+//		}
+//
+//		if (finalposition.getY() > world.getPathfindingMaze().length - 2) {
+//			finalposition.setY(world.getPathfindingMaze().length - 2);
+//		}
 
-		if (finalposition.getX() < 1) {
-			finalposition.setX(1);
-		}
-
-		if (finalposition.getY() < 1) {
-			finalposition.setY(1);
-		}
-
-		if (finalposition.getX() > world.getPathfindingMaze()[0].length - 2) {
-			finalposition.setX(world.getPathfindingMaze()[0].length - 2);
-		}
-
-		if (finalposition.getY() > world.getPathfindingMaze().length - 2) {
-			finalposition.setY(world.getPathfindingMaze().length - 2);
-		}
-
-		return finalposition;
+		return rv;
 
 	}
 
