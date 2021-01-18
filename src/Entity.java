@@ -17,6 +17,8 @@ public abstract class Entity {
 	}
 
 	public void setPosition(MazePos position) {
+		if (position.getX() < 0) position.withX(0);
+		if (position.getY() < 0) position.withY(0);
 		this.position = position;
 	}
 	

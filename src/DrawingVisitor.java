@@ -39,8 +39,6 @@ public class DrawingVisitor implements EntityVisitor {
 		for (int i = 1; i <= world.lives(); i++) {
 			g.drawImage(heart, 10 + 30 * i, 10, null);
 		}
-
-		if (world.ticks() % 10 == 0) System.out.println("SCORE: " + world.getScore() + "\tPELLETS: " + world.debugNumPellets());
 	}
 
 	@Override

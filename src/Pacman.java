@@ -5,6 +5,7 @@ public class Pacman extends Entity {
 
 	public Pacman(GameWorld world) {
 		super(world);
+		setPosition(new MazePos(9, 1));
 	}
 
 	@Override

@@ -31,12 +31,13 @@ public class Driver {
 	private static class PacmanWindow extends JPanel {
 		private static final long serialVersionUID = 1L;
 		private static final int w = 600, h = 600;
+		private JFrame jf;
 		
 		public PacmanWindow() {
 			super();
 			
-			JFrame jf = new JFrame("Pac-Man");
-		    jf.setSize(w, h);
+			jf = new JFrame("Pac-Man");
+			jf.setSize(w, h);
 		    jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//set close button to exit
 		    
 		    jf.add(this);
@@ -57,8 +58,9 @@ public class Driver {
 		
 		@Override
 		public void paint(Graphics g) {
+			this.setSize(jf.getSize().width, jf.getSize().height);
 			
-			DrawingVisitor drawing = new DrawingVisitor(g, world, w, h);
+			DrawingVisitor drawing = new DrawingVisitor(g, world, this.getSize().width, this.getSize().height);
 			
 			for (Entity e : world.getEntities()) {
 				e.accept(drawing);

@@ -13,6 +13,7 @@ public class GameWorld {
 	private boolean didWin;
 	private int blueGhostModeTimer = 0;
 	private int cooldownTimer = 0;
+	private int respawnBlinkyTimer = 0, respawnPinkyTimer = 0, respawnInkyTimer = 0, respawnClydeTimer = 0;
 	private boolean resetNextTick = false;
 	private boolean gameOver = false;
 	
@@ -27,6 +28,7 @@ public class GameWorld {
 	 * s Strawberry
 	 */
 	private MazeTile[][] maze;
+	private PathfindingTile[][] pathfindingMaze;
 	
 	private Pacman pacman;
 	
@@ -59,6 +61,17 @@ public class GameWorld {
 			blueGhostMode = false;
 		}
 		
+		respawnBlinkyTimer--;
+		if (respawnBlinkyTimer == 0) ghosts.add(new Blinky(this));
+		respawnPinkyTimer--;
+		if (respawnPinkyTimer == 0) ghosts.add(new Pinky(this));
+		respawnInkyTimer--;
+		if (respawnInkyTimer == 0) ghosts.add(new Inky(this));
+		respawnClydeTimer--;
+		if (respawnClydeTimer == 0) ghosts.add(new Clyde(this));
+		
+		System.out.println("respawn clyde:"+respawnClydeTimer);
+		
 		if (pacman.isDead()) {
 			lives--;
 			if (lives == 0) endGame();
@@ -72,6 +85,10 @@ public class GameWorld {
 		for (Entity e : entities) e.tick();
 		
 		Predicate<Entity> entityDead = new Predicate<Entity>() { @Override public boolean test(Entity e) {
+			if (e instanceof Blinky && e.isDead()) respawnBlinkyTimer = 500;
+			if (e instanceof Pinky && e.isDead()) respawnPinkyTimer = 500;
+			if (e instanceof Inky && e.isDead()) respawnInkyTimer = 500;
+			if (e instanceof Clyde && e.isDead()) respawnClydeTimer = 500;
 			return e.isDead();
 		} };
 		entities.removeIf(entityDead);
@@ -92,15 +109,18 @@ public class GameWorld {
 				r("<.     .     .     .     .     .     .     .     .>"),
 				r("<.>   <_^   ^_>    .    <^_>   .    <_^   ^_>    .>"),
 				r("<.     .     .     .     .     .     .     .     .>"),
-				r("<.     .^    .^   <^     a     ^>    ^.   ^.     .>"),
+				r("<.     .^    .^   <      a      >    ^.   ^.     .>"),
 				r("<.     .^   <s    <_    _      _>    s>   ^.     .>"),
 				r("<.>    .    <._    ._    ._    ._   _.>    .    <.>"),
 				r("<.>    ._    ._    ._    a_    ._    ._    ._   <.>"),
 				r("<._    ._    ._    ._    ._    ._    ._    ._   _.>"),
 		};
+
 		
-		for (int y = 0; y < maze.length; y++) for (int x = 0; x < maze[0].length; x++) {
-			maze[y][x].setPosition(new MazePos(x + 1, y + 1));
+		initPathfindingMaze();
+		
+		for (int y = 0; y < getMaze().length; y++) for (int x = 0; x < getMaze()[0].length; x++) {
+			getMaze()[y][x].setPosition(new MazePos(x + 1, y + 1));
 		}
 		
 		entities = new ArrayList<>();
@@ -115,6 +135,44 @@ public class GameWorld {
 		entities.addAll(ghosts);
 		
 		score = 0;
+	}
+
+	private void initPathfindingMaze() {
+		pathfindingMaze = new PathfindingTile[2 * maze.length + 1][2 * maze[0].length + 1];
+		
+		for (int y = 0; y < maze.length; y++) for (int x = 0; x < maze[y].length; x++) {
+			int pfY = 2 * y + 1, pfX = 2 * x + 1;
+			MazeTile mt = maze[y][x];
+			mt.setPathfindingPos(new MazePos(pfX, pfY));
+			pathfindingMaze[pfY][pfX] = new PathfindingTile(mt);
+			if (mt.hasWall(Direction.left)) {
+				pathfindingMaze[pfY][pfX-1] = PathfindingTile.wall();
+				pathfindingMaze[pfY-1][pfX-1] = PathfindingTile.wall();
+				pathfindingMaze[pfY+1][pfX-1] = PathfindingTile.wall();
+			}
+			if (mt.hasWall(Direction.up)) {
+				pathfindingMaze[pfY-1][pfX] = PathfindingTile.wall();
+				pathfindingMaze[pfY-1][pfX-1] = PathfindingTile.wall();
+				pathfindingMaze[pfY-1][pfX+1] = PathfindingTile.wall();
+			}
+			if (mt.hasWall(Direction.right)) {
+				pathfindingMaze[pfY][pfX+1] = PathfindingTile.wall();
+				pathfindingMaze[pfY-1][pfX+1] = PathfindingTile.wall();
+				pathfindingMaze[pfY+1][pfX+1] = PathfindingTile.wall();
+			}
+			if (mt.hasWall(Direction.down)) {
+				pathfindingMaze[pfY+1][pfX] = PathfindingTile.wall();
+				pathfindingMaze[pfY+1][pfX-1] = PathfindingTile.wall();
+				pathfindingMaze[pfY+1][pfX+1] = PathfindingTile.wall();
+			}
+		}
+		
+		// Fill null spots
+		for (int y = 0; y < pathfindingMaze.length; y++) for (int x = 0; x < pathfindingMaze[y].length; x++) {
+			if (pathfindingMaze[y][x] == null) pathfindingMaze[y][x] = PathfindingTile.empty();
+			if (x == 0) System.out.println();
+			System.out.print(pathfindingMaze[y][x].hasWall()?"#":" ");
+		}
 	}
 
 	private void endGame() {
@@ -142,18 +200,18 @@ public class GameWorld {
 
 	public MazeTile mazeTileAt(MazePos pos) {
 		try {
-			return maze[pos.getY() - 1][pos.getX() - 1];
+			return getMaze()[pos.getY() - 1][pos.getX() - 1];
 		} catch (ArrayIndexOutOfBoundsException e) {
 			return parseTile("<^_>");
 		}
 	}
 	
 	public int mazeHeight() {
-		return maze.length;
+		return getMaze().length;
 	}
 	
 	public int mazeWidth() {
-		return maze[0].length;
+		return getMaze()[0].length;
 	}
 
 	public ArrayList<Entity> getEntities() {
@@ -223,5 +281,21 @@ public class GameWorld {
 		case 2: score += 800;  break;
 		case 1: score += 1600; break;
 		}
+	}
+
+	public Pacman getPacman() {
+		return pacman;
+	}
+
+	public MazeTile[][] getMaze() {
+		return maze;
+	}
+
+	public PathfindingTile[][] getPathfindingMaze() {
+		return pathfindingMaze;
+	}
+
+	public MazePos mazePosToPathfindingMaze(MazePos position) {
+		return mazeTileAt(position).getPathfindingPos();
 	}
 }

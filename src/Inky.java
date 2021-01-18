@@ -1,4 +1,7 @@
 
+import java.util.Random;
+import javax.swing.ImageIcon;
+
 public class Inky extends Pinky {
 
 	public Inky(GameWorld gw) {

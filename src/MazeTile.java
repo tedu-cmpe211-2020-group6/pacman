@@ -35,6 +35,15 @@ public class MazeTile extends Entity {
 		world.didEatItem(temp);
 	}
 	
+	public MazePos getPathfindingPos() {
+		return pathfindingPos;
+	}
+
+	public void setPathfindingPos(MazePos pathfindingPos) {
+		this.pathfindingPos = pathfindingPos;
+	}
+
 	private boolean[] walls = new boolean[4];
 	private Item item;
+	private MazePos pathfindingPos;
 }
